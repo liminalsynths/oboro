@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>oboro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&family=Noto+Sans+TC:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* 單一主題：白底黑字，照排版稿；欄寬以手機 375px 為基準，桌機置中 */
+      --bg: #ffffff;
+      --ink: #000000;
+      --dot: #e3e3e3;
+      --font: "Montserrat", "Noto Sans TC", system-ui, sans-serif;
+      --font-zh: "Montserrat", "Noto Sans TC", "PingFang TC", sans-serif;
+      --col: min(100vw, 440px);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-weight: 600;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4px; }
+    img { display: block; max-width: 100%; }
+
+    .page { display: none; width: var(--col); margin: 0 auto; }
+    .page.is-active { display: flex; }
+
+    /* ---------- 首頁 ---------- */
+    #page-home {
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      padding-bottom: calc(var(--col) * 0.12);
+    }
+    .home-top { flex: 1.15 1 0; min-height: 32px; }
+    .home-photo { width: 78%; aspect-ratio: 1; object-fit: cover; }
+    .home-mid { flex: 1.5 1 0; min-height: 48px; }
+    .nav {
+      display: flex;
+      gap: 1.2em;
+      font-size: calc(var(--col) * 0.067);
+      line-height: 1;
+    }
+    .nav a { padding: 0.1em 0; }
+    .home-logo { display: block; width: 77.5%; height: auto; margin-top: calc(var(--col) * 0.05); }
+
+    /* ---------- info ---------- */
+    #page-info {
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      padding: 0 16px calc(var(--col) * 0.2);
+      text-align: center;
+    }
+    .info-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 29px; padding-top: 25vh; }
+    .info-zh { margin: 0; font-family: var(--font-zh); font-size: 16px; line-height: 1.25; }
+    .info-en { margin: 0; font-size: 13px; line-height: 1.25; }
+    .info-zh span { display: block; }
+    .back-link { margin-top: 12vh; font-size: 26px; line-height: 1; }
+
+    /* ---------- 產品頁 ---------- */
+    #page-saku {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-bottom: 96px;
+    }
+    .carousel {
+      width: 100%;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .carousel::-webkit-scrollbar { display: none; }
+    .slide { flex: 0 0 100%; aspect-ratio: 1; scroll-snap-align: start; }
+    .slide img { width: 100%; height: 100%; object-fit: cover; }
+    .dots { display: flex; gap: 5px; margin-top: 17px; }
+    .dots button {
+      width: 6px; height: 6px; padding: 0; border: 0; border-radius: 50%;
+      background: var(--dot); cursor: pointer;
+    }
+    .dots button[aria-current="true"] { background: var(--ink); }
+    .product-title { margin: 40px 0 0; font-size: 28px; line-height: 1.02; font-weight: 600; text-wrap: balance; }
+    .price { margin: 40px 0 0; font-size: 19px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .swatches { display: flex; gap: 10px; margin-top: 27px; }
+    .swatches button {
+      width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+    }
+    .swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--ink); }
+    .bag {
+      margin-top: 33px; padding: 0; border: 0; background: none; color: var(--ink); cursor: pointer;
+    }
+    .bag svg { display: block; width: 44px; height: 44px; }
+    .specs { margin: 38px 0 0; font-size: 13px; line-height: 15px; font-weight: 500; }
+    .specs p { margin: 0; }
+    .specs .origin { margin-top: 15px; }
+    #page-saku .back-link { margin-top: 64px; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .carousel { scroll-behavior: smooth; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 首頁 -->
+  <main class="page" id="page-home" aria-label="首頁">
+    <div class="home-top"></div>
+    <img class="home-photo" src="img/kawazu-2.jpg" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
+    <div class="home-mid"></div>
+    <nav class="nav" aria-label="主選單">
+      <a href="#info">info</a>
+      <a href="#saku">shop</a>
+    </nav>
+    <svg class="home-logo" viewBox="0 0 595.44 175.94" role="img" aria-label="oboro"><path fill="currentColor" d="M440.54,96.59c-1.3,2.82-1.83,5.73-2.09,8.77l-.26,3.04-.2,3.99-.23,18.91-.23,8.67c-.18,7-2.31,18.03-7.16,22.78l-3.27,3.2c-4.7,3.78-10.55,5.62-16.49,5.63h-2.53c-2.79,0-5.39-.49-8.11-1.29-4.94-1.45-9.01-4.36-12.5-8.14l-2.43-2.64c-2.95-3.2-5.69-2.41-9.27,0-4.24,2.86-8.24,5.69-12.82,8.03-9.18,4.69-19.01,7.27-29.26,8.12l-3.99.2c-1.73.09-3.32.08-5.05,0l-3.8-.18c-9.45-.75-18.6-2.99-27.21-7.02-6.6-3.09-12.63-6.87-17.81-11.93l-7.88-7.7c-2.34-2.28-5.52-2.35-7.83-.09l-8.49,8.26c-5.08,4.94-11.03,8.53-17.5,11.54-8.16,3.79-16.84,5.99-25.79,6.83l-4.59.29h-5.98s-3.54-.2-3.54-.2c-17.49-.94-35.4-9.14-47.19-22.29l-2.07-2.3-4.05-4.1c-1.79-1.81-4.67-1.85-6.65.13l-4.19,4.22-6.58,6.58c-4.01,3.58-8.31,6.49-13.05,9.04-9.43,5.09-19.7,7.8-30.34,8.71l-4,.2c-1.73.09-3.32.08-5.05,0l-3.8-.18c-16.44-1.3-31.94-7.21-44.26-18.26l-5.05-5.06c-3.85-4.35-7.1-8.99-9.78-14.2-11.09-21.55-10.87-49.02.71-70.3,12.02-22.09,34.21-34.53,59.05-36.17l2.68-.18,6.33.03,3.86.28c13.29.95,25.75,5.44,36.84,12.72,1.71,1.12,3.56,2.01,5.48,2.44,1.38.31,2.66-1.03,3.01-2.2.95-3.21.99-6.36,1.18-9.62l.24-4.35c.3-5.34,1.11-10.55,3.16-15.49,2.93-7.04,8.62-12.03,15.96-14.08,10.15-2.85,22.57-.99,29.76,7.15,3.03,3.43,5.04,7.51,5.97,11.99l1.86,8.94c.8,3.86,3.24,5.67,7.25,5.25l11-1.18,2.92-.21,5.14.03,3.86.26c13.74.92,29.41,7.39,39.32,17l6.58,6.38c1.04,1.01,2.42,1.93,3.85,2.12,1.83.24,3.49-.72,4.78-1.89l2.67-2.39,5.37-5.17c12.34-10.9,28.09-16.75,44.49-17.84l2.68-.18,6.33.03,3.88.26c15.17,1.01,31.5,7.49,42.91,17.73l7.77,7.57c2.13,2.07,4.63,3.6,7.07,2,1.79-1.17,3.14-2.74,4.55-4.32l2.04-2.27,5.29-5.27c3.34-3.32,7.3-5.71,11.5-7.94,7.79-4.12,16.21-6.4,25-7.32l3.34-.25,6.39.04c4.95.36,9.75,1.16,14.24,3.24,2.64,1.22,4.83,2.79,7.29,4.24l3.03,1.79c2.08,1.22,4.51,1.39,6.75.49l6.52-2.62c8.55-3.92,17.51-6.46,26.9-7.1l3.87-.27h6.73s3.88.26,3.88.26c15.26,1.03,31.59,7.53,43.04,17.84l5.29,5.26,1.36,1.54c4.11,4.66,7.22,9.92,9.78,15.62,3.38,7.53,5.38,15.4,6.2,23.59l.1,1,.23,3.35-.03,7.83c-.94,16.33-6.46,31.9-17.4,44.21l-5.89,5.86c-4,3.58-8.3,6.49-13.04,9.04-9.43,5.09-19.7,7.8-30.34,8.71l-4,.2c-1.73.09-3.32.08-5.05,0l-3.8-.18c-16.43-1.3-31.94-7.21-44.26-18.26l-5.05-5.06c-10.62-11.99-16.29-26.4-17.8-42.32l-.23-4.63-.19-9.6c-.04-1.96-1.15-4.07-3-3.96-2.35.69-3.79,2.45-4.83,4.73ZM89.42,103.71c0-8.82-7.16-15.97-15.98-15.97s-15.98,7.15-15.98,15.97,7.16,15.97,15.98,15.97,15.98-7.15,15.98-15.97ZM343.02,103.71c0-8.82-7.16-15.97-15.98-15.97s-15.98,7.15-15.98,15.97,7.16,15.97,15.98,15.97,15.98-7.15,15.98-15.97ZM538.07,103.71c0-8.82-7.16-15.97-15.98-15.97s-15.98,7.15-15.98,15.97,7.16,15.97,15.98,15.97,15.98-7.15,15.98-15.97ZM211.96,114.88c6.29-5.61,6.51-16.46.8-21.73-5.41-4.99-14.5-4.99-20.82-1.57-7.38,3.99-7.98,12.94-4.19,19.85,4.94,9.01,17.24,9.68,24.22,3.45Z"/></svg>
+  </main>
+
+  <!-- info -->
+  <main class="page" id="page-info" aria-label="關於 oboro">
+    <div class="info-body">
+      <p class="info-zh"><span>oboro是位於台北的燈具創作工作室，</span><span>作品以3D列印與手工少量製作。</span></p>
+      <p class="info-en">A lighting design studio based in Taipei.<br>Each piece is 3D printed and handcrafted<br>in small batches.</p>
+    </div>
+    <a class="back-link" href="#">back</a>
+  </main>
+
+  <!-- 產品頁 -->
+  <main class="page" id="page-saku" aria-label="Lamp Saku">
+    <div class="carousel" id="carousel" aria-label="產品照片"></div>
+    <div class="dots" id="dots" role="group" aria-label="切換照片"></div>
+
+    <h1 class="product-title" id="product-title"></h1>
+    <p class="price" id="price"></p>
+
+    <div class="swatches" id="swatches" role="group" aria-label="顏色"></div>
+
+    <button class="bag" type="button" aria-label="購買">
+      <svg viewBox="0 0 1415.58 1553.97" aria-hidden="true"><path fill="currentColor" d="M1229,1553.97l-1040-.14c-100.27-.01-199.13-98.78-188.17-206.19l31.62-309.82,60.11-569.14c10.73-48.74,51.68-82.15,101.01-85.56l174.91-.29.33-64.59c.2-38.7,8.62-75.01,22.98-110.65C459.73,42.71,651.05-37.44,817.79,16.91c90.14,29.38,162.15,95.08,200.73,180.98,15.59,36.96,23.87,74.24,23.97,114.38l.17,69.54,179.43.6c48.8.16,89.51,37.05,100.41,83.65l37.56,352.09,54.01,511.2c4.9,46.41-1.71,89.01-26.31,128.46-34.1,54.67-92.33,91.22-158.76,96.18ZM940.18,381.97c-.4-26.31,1.25-49.12-.59-73.7-6.67-88.85-66.6-164.79-150.97-194.26-66.51-23.23-140.41-15.95-201.64,18.77-65.1,36.92-109.12,102.48-114.59,177.22-1.81,24.76-.4,47.82-.45,72.24l468.25-.27ZM1218.59,1451.59c21.19,0,39.02-10.4,52.45-22.76,28.55-26.28,37.14-63.05,33.05-101.38l-36.44-341.53-46.64-482.2c-1.27-13.1-6.9-24.66-21.97-24.67l-156.37-.07.19,109.06c-8.16,26.33-32.8,40.88-60.18,37.1-19.47-3.02-41.44-17.39-41.65-39.2l-1.03-106.93-468.23.42-.56,103.89c-.12,22.04-18.97,37.22-39.64,41.9-26.11,6.46-59.19-8.37-61.85-37.54-3.27-35.92-.19-70.98-1.37-107.85l-151.8.22c-8.78.01-20.76,6.69-21.68,16.64l-18.28,197.58-66.52,653.04c-5.17,50.77,36.9,104.22,82.99,104.22l1025.52.03Z"/></svg>
+    </button>
+
+    <div class="specs">
+      <p>Light source: LED panel</p>
+      <p>Material: PETG</p>
+      <p>Color temperature: 3 modes</p>
+      <p>Power: USB Type-A, DC 5V</p>
+      <p>Wattage: 3W</p>
+      <p class="origin">made in taiwan.</p>
+    </div>
+
+    <a class="back-link" href="#">back</a>
+  </main>
+
+  <script>
+    // 產品資料：加新顏色或新產品就改這裡
+    const product = {
+      line: 'Lamp Saku',
+      price: 1100,
+      variants: [
+        { id: 'kawazu', name: 'Kawazu', label: '白', swatch: '#e3e3e3', photos: 6 },
+        { id: 'oshima', name: 'Oshima', label: '粉紅', swatch: '#ffd3e3', photos: 6 },
+      ],
+    };
+
+    const pages = { info: 'page-info', saku: 'page-saku' };
+    const carousel = document.getElementById('carousel');
+    const dots = document.getElementById('dots');
+    const swatches = document.getElementById('swatches');
+
+    function route() {
+      const id = pages[location.hash.slice(1)] || 'page-home';
+      document.querySelectorAll('.page').forEach(p => p.classList.toggle('is-active', p.id === id));
+      window.scrollTo(0, 0);
+      if (id === 'page-saku') syncDots();
+    }
+
+    function syncDots() {
+      const i = Math.round(carousel.scrollLeft / (carousel.clientWidth || 1));
+      [...dots.children].forEach((d, j) => d.setAttribute('aria-current', j === i ? 'true' : 'false'));
+    }
+
+    function showVariant(v) {
+      document.getElementById('product-title').innerHTML = product.line + '<br>' + v.name;
+      document.getElementById('price').textContent = '$ ' + product.price;
+      carousel.innerHTML = '';
+      dots.innerHTML = '';
+      for (let i = 1; i <= v.photos; i++) {
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        const img = document.createElement('img');
+        img.src = 'img/' + v.id + '-' + i + '.jpg';
+        img.alt = product.line + ' ' + v.name + ' 照片 ' + i;
+        if (i > 1) img.loading = 'lazy';
+        slide.appendChild(img);
+        carousel.appendChild(slide);
+
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.id = 'dot-' + i;
+        b.setAttribute('aria-label', '第 ' + i + ' 張');
+        b.addEventListener('click', () => carousel.scrollTo({ left: carousel.clientWidth * (i - 1) }));
+        dots.appendChild(b);
+      }
+      carousel.scrollLeft = 0;
+      [...swatches.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === v.id ? 'true' : 'false'));
+      syncDots();
+    }
+
+    product.variants.forEach(v => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.id = 'swatch-' + v.id;
+      b.dataset.id = v.id;
+      b.style.background = v.swatch;
+      b.setAttribute('aria-label', v.label + ' ' + v.name);
+      b.addEventListener('click', () => showVariant(v));
+      swatches.appendChild(b);
+    });
+
+    carousel.addEventListener('scroll', syncDots, { passive: true });
+    window.addEventListener('hashchange', route);
+    showVariant(product.variants[0]);
+    route();
+  </script>
+</body>
+</html>
