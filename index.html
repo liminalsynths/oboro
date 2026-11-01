@@ -55,8 +55,15 @@
     .home-logo { display: block; width: 77.5%; height: auto; margin-top: calc(var(--col) * 0.05); }
 
     /* ---------- info：沿用首頁骨架，back 對齊首頁 info / shop ---------- */
-    #page-info { text-align: center; }
-    .info-body { width: 78%; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; gap: 29px; }
+    #page-info { position: relative; text-align: center; }
+    .info-frame { width: 78%; aspect-ratio: 1; }
+    /* 文字對整個畫面垂直置中，不影響 back 的位置 */
+    .info-body {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: calc(100% - 32px); max-width: 320px;
+      display: flex; flex-direction: column; gap: 29px;
+    }
+    .info-zh, .info-en { text-wrap: balance; }
     .logo-spacer { aspect-ratio: 595.44 / 175.94; visibility: hidden; }
     .info-zh { margin: 0; font-family: var(--font-zh); font-size: 16px; line-height: 1.25; }
     .info-en { margin: 0; font-size: 13px; line-height: 1.25; }
@@ -125,9 +132,10 @@
   <!-- info -->
   <main class="page" id="page-info" aria-label="關於 oboro">
     <div class="home-top"></div>
+    <div class="info-frame"></div>
     <div class="info-body">
-      <p class="info-zh"><span>oboro是位於台北的燈具創作工作室，</span><span>作品以3D列印與手工少量製作。</span></p>
-      <p class="info-en">A lighting design studio based in Taipei.<br>Each piece is 3D printed and handcrafted<br>in small batches.</p>
+      <p class="info-zh"><span>Oboro 是設計工作室 LiminalSynths</span><span>延伸出的燈具創作系列，</span><span>作品以 3D 列印與手工少量製作。</span></p>
+      <p class="info-en">Oboro is a lighting collection that grew out of the design studio LiminalSynths. Each piece is made in small batches through 3D printing and handcraft.</p>
     </div>
     <div class="home-mid"></div>
     <nav class="nav" aria-label="返回">
