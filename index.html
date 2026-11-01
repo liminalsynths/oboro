@@ -46,6 +46,13 @@
     }
     .home-top { flex: 1.15 1 0; min-height: 32px; }
     .home-photo { width: 78%; aspect-ratio: 1; object-fit: cover; }
+    /* 標語貼在照片上方，不佔版面，照片和選單位置不變 */
+    .home-hero { position: relative; width: 78%; }
+    .home-hero .home-photo { width: 100%; }
+    .tagline {
+      position: absolute; bottom: calc(100% + 16px); left: 0; right: 0;
+      margin: 0; text-align: center; font-size: 14px; line-height: 1.25; text-wrap: balance;
+    }
     .home-mid { flex: 1.5 1 0; min-height: 48px; }
     .nav {
       display: flex;
@@ -125,7 +132,10 @@
   <!-- 首頁 -->
   <main class="page" id="page-home" aria-label="首頁">
     <div class="home-top"></div>
-    <img class="home-photo" src="img/home.jpg" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
+    <div class="home-hero">
+      <p class="tagline">Where light and color move through line and texture.</p>
+      <img class="home-photo" src="img/home.jpg" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
+    </div>
     <div class="home-mid"></div>
     <nav class="nav" aria-label="主選單">
       <a href="#info">info</a>
