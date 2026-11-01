@@ -73,8 +73,6 @@
     .back-link { font-size: 26px; line-height: 1; }
 
     /* ---------- 產品頁 ---------- */
-    /* 產品頁黑白對調：在 body 上換掉色票，整頁（含桌機兩側）一起變黑底白字 */
-    body.is-dark { --bg: #000000; --ink: #ffffff; --dot: #3d3d3d; color-scheme: dark; }
     /* 首頁 → shop：像關燈一樣整頁漸暗，再在黑暗中亮出產品頁 */
     .lights-out {
       position: fixed; inset: 0; z-index: 10;
@@ -207,7 +205,6 @@
     function route() {
       const id = pages[location.hash.slice(1)] || 'page-home';
       document.querySelectorAll('.page').forEach(p => p.classList.toggle('is-active', p.id === id));
-      document.body.classList.toggle('is-dark', id === 'page-saku');
       window.scrollTo(0, 0);
       if (id === 'page-saku') syncDots();
     }
