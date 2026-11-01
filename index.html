@@ -36,7 +36,7 @@
     .page.is-active { display: flex; }
 
     /* ---------- 首頁 ---------- */
-    #page-home {
+    #page-home, #page-info {
       flex-direction: column;
       align-items: center;
       min-height: 100dvh;
@@ -54,19 +54,14 @@
     .nav a { padding: 0.1em 0; }
     .home-logo { display: block; width: 77.5%; height: auto; margin-top: calc(var(--col) * 0.05); }
 
-    /* ---------- info ---------- */
-    #page-info {
-      flex-direction: column;
-      align-items: center;
-      min-height: 100dvh;
-      padding: 0 16px calc(var(--col) * 0.2);
-      text-align: center;
-    }
-    .info-body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 29px; padding-top: 25vh; }
+    /* ---------- info：沿用首頁骨架，back 對齊首頁 info / shop ---------- */
+    #page-info { text-align: center; }
+    .info-body { width: 78%; aspect-ratio: 1; display: flex; flex-direction: column; justify-content: center; gap: 29px; }
+    .logo-spacer { aspect-ratio: 595.44 / 175.94; visibility: hidden; }
     .info-zh { margin: 0; font-family: var(--font-zh); font-size: 16px; line-height: 1.25; }
     .info-en { margin: 0; font-size: 13px; line-height: 1.25; }
     .info-zh span { display: block; }
-    .back-link { margin-top: 12vh; font-size: 26px; line-height: 1; }
+    .back-link { font-size: 26px; line-height: 1; }
 
     /* ---------- 產品頁 ---------- */
     #page-saku {
@@ -92,23 +87,24 @@
     }
     .dots button[aria-current="true"] { background: var(--ink); }
     .product-title { margin: 40px 0 0; font-size: 28px; line-height: 1.02; font-weight: 600; text-wrap: balance; }
-    .price { margin: 40px 0 0; font-size: 19px; line-height: 1; font-variant-numeric: tabular-nums; }
-    .swatches { display: flex; gap: 10px; margin-top: 27px; }
+    .price { margin: 40px 0 0; font-size: 19px; line-height: 1; letter-spacing: -0.03em; }
+    .swatches { display: flex; align-items: center; gap: 10px; height: 26px; margin-top: 23px; }
     .swatches button {
       width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
     }
-    .swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--ink); }
+    .swatches button[aria-pressed="true"] { width: 26px; height: 26px; }
     .bag {
       margin-top: 33px; padding: 0; border: 0; background: none; color: var(--ink); cursor: pointer;
     }
     .bag svg { display: block; width: 44px; height: 44px; }
-    .specs { margin: 38px 0 0; font-size: 13px; line-height: 15px; font-weight: 500; }
+    .specs { margin: 38px 0 0; font-size: 13px; line-height: 15px; font-weight: 600; }
     .specs p { margin: 0; }
     .specs .origin { margin-top: 15px; }
     #page-saku .back-link { margin-top: 64px; }
 
     @media (prefers-reduced-motion: no-preference) {
       .carousel { scroll-behavior: smooth; }
+      .swatches button { transition: width 0.2s, height 0.2s; }
     }
   </style>
 </head>
@@ -128,11 +124,16 @@
 
   <!-- info -->
   <main class="page" id="page-info" aria-label="關於 oboro">
+    <div class="home-top"></div>
     <div class="info-body">
       <p class="info-zh"><span>oboro是位於台北的燈具創作工作室，</span><span>作品以3D列印與手工少量製作。</span></p>
       <p class="info-en">A lighting design studio based in Taipei.<br>Each piece is 3D printed and handcrafted<br>in small batches.</p>
     </div>
-    <a class="back-link" href="#">back</a>
+    <div class="home-mid"></div>
+    <nav class="nav" aria-label="返回">
+      <a href="#">back</a>
+    </nav>
+    <div class="home-logo logo-spacer" aria-hidden="true"></div>
   </main>
 
   <!-- 產品頁 -->
