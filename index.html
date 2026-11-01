@@ -235,7 +235,7 @@
       syncDots();
     }
 
-    // 換色：照片直接切換；產品名稱往一側滑出淡出，新名稱從另一側滑入淡入
+    // 換色：照片直接切換；產品名稱往上（或下）滑出淡出，新名稱從另一側滑入淡入
     async function switchVariant(v) {
       if (v === current) return;
       const dir = product.variants.indexOf(v) > product.variants.indexOf(current) ? 1 : -1;
@@ -245,7 +245,7 @@
       const token = ++switching;
       const shift = 28 * dir;
       await title.animate(
-        [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: `translateX(${-shift}px)` }],
+        [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: `translateY(${-shift}px)` }],
         { duration: 220, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' }
       ).finished.catch(() => {});
       if (token !== switching) return;
@@ -253,7 +253,7 @@
       setTitle(v);
       title.getAnimations().forEach(an => an.cancel());
       title.animate(
-        [{ opacity: 0, transform: `translateX(${shift}px)` }, { opacity: 1, transform: 'translateX(0)' }],
+        [{ opacity: 0, transform: `translateY(${shift}px)` }, { opacity: 1, transform: 'translateY(0)' }],
         { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
       );
     }
