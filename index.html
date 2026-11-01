@@ -29,6 +29,8 @@
       -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
+    /* 手機點擊時不要出現瀏覽器預設的高亮色塊 */
+    a, button { -webkit-tap-highlight-color: transparent; }
     a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 4px; }
     img { display: block; max-width: 100%; }
 
@@ -282,6 +284,13 @@
     setTitle(product.variants[0]);
     renderVariant(product.variants[0]);
     route();
+
+    // 首頁載入完後先在背景把產品照抓下來，進產品頁和換色時照片不會一格一格出現
+    window.addEventListener('load', () => {
+      product.variants.forEach(v => {
+        for (let i = 1; i <= v.photos; i++) new Image().src = 'img/' + v.id + '-' + i + '.jpg';
+      });
+    });
   </script>
 </body>
 </html>
