@@ -198,8 +198,17 @@
       [...dots.children].forEach((d, j) => d.setAttribute('aria-current', j === i ? 'true' : 'false'));
     }
 
-    function showVariant(v) {
-      document.getElementById('product-title').innerHTML = product.line + '<br>' + v.name;
+    let current = null;
+    let switching = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const title = document.getElementById('product-title');
+
+    function setTitle(v) {
+      title.innerHTML = product.line + '<br>' + v.name;
+    }
+
+    function renderVariant(v) {
       document.getElementById('price').textContent = '$ ' + product.price;
       carousel.innerHTML = '';
       dots.innerHTML = '';
@@ -220,9 +229,33 @@
         b.addEventListener('click', () => carousel.scrollTo({ left: carousel.clientWidth * (i - 1) }));
         dots.appendChild(b);
       }
-      carousel.scrollLeft = 0;
+      carousel.scrollTo({ left: 0, behavior: 'instant' });
       [...swatches.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === v.id ? 'true' : 'false'));
+      current = v;
       syncDots();
+    }
+
+    // 換色：照片直接切換；產品名稱往一側滑出淡出，新名稱從另一側滑入淡入
+    async function switchVariant(v) {
+      if (v === current) return;
+      const dir = product.variants.indexOf(v) > product.variants.indexOf(current) ? 1 : -1;
+      renderVariant(v);
+      if (reduceMotion.matches) { setTitle(v); return; }
+
+      const token = ++switching;
+      const shift = 28 * dir;
+      await title.animate(
+        [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: `translateX(${-shift}px)` }],
+        { duration: 220, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' }
+      ).finished.catch(() => {});
+      if (token !== switching) return;
+
+      setTitle(v);
+      title.getAnimations().forEach(an => an.cancel());
+      title.animate(
+        [{ opacity: 0, transform: `translateX(${shift}px)` }, { opacity: 1, transform: 'translateX(0)' }],
+        { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+      );
     }
 
     product.variants.forEach(v => {
@@ -232,13 +265,14 @@
       b.dataset.id = v.id;
       b.style.background = v.swatch;
       b.setAttribute('aria-label', v.label + ' ' + v.name);
-      b.addEventListener('click', () => showVariant(v));
+      b.addEventListener('click', () => switchVariant(v));
       swatches.appendChild(b);
     });
 
     carousel.addEventListener('scroll', syncDots, { passive: true });
     window.addEventListener('hashchange', route);
-    showVariant(product.variants[0]);
+    setTitle(product.variants[0]);
+    renderVariant(product.variants[0]);
     route();
   </script>
 </body>
