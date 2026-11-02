@@ -152,14 +152,14 @@
 
       #page-info { padding: 0; }
       #page-info .home-top, #page-info .home-mid, .info-frame, .logo-spacer { display: none; }
-      /* 資訊頁：中文、英文、IG 橫向排一列，段落齊左，上緣對齊，整組在畫面正中間 */
+      /* 資訊頁：中文、英文、IG 橫向排一列，段落齊左、上緣對齊，IG 垂直置中，整組在畫面正中間 */
       .info-body {
         flex-direction: row; align-items: flex-start; gap: 64px;
         width: max-content; max-width: calc(100% - var(--edge-x) * 2);
         text-align: left;
       }
       .info-en { width: 300px; }
-      .info-ig { align-self: flex-start; padding: 0; }
+      .info-ig { align-self: center; padding: 0; }
 
       #page-info .nav, #page-saku .back-link {
         position: fixed; top: var(--edge-y); right: var(--edge-x); z-index: 5;
