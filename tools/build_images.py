@@ -19,7 +19,7 @@ OUT = ROOT / 'img'
 HTML = ROOT / 'index.html'
 
 # 照片比例（寬:高），改這裡時 index.html 的 .slide aspect-ratio 也要一起改
-RATIO = (4, 5)  # 2:2.5
+RATIO = (200, 221)  # 2:2.21
 WIDTH = 1080
 
 # 資料夾 → 網站上的款式 id
