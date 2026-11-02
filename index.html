@@ -134,7 +134,7 @@
     <div class="home-top"></div>
     <div class="home-hero">
       <p class="tagline">Where light and color move through line and texture.</p>
-      <img class="home-photo" src="img/home.jpg" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
+      <img class="home-photo" src="img/home.jpg?v=2" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
     </div>
     <div class="home-mid"></div>
     <nav class="nav" aria-label="主選單">
@@ -192,6 +192,9 @@
 
   <script>
     // 產品資料：加新顏色或新產品就改這裡
+    // 換圖後改這個版本號，瀏覽器就會重新下載照片，不會顯示舊的快取
+    const IMG_VERSION = '2';
+
     const product = {
       line: 'Lamp Saku',
       price: 1100,
@@ -236,7 +239,7 @@
         const slide = document.createElement('div');
         slide.className = 'slide';
         const img = document.createElement('img');
-        img.src = 'img/' + v.id + '-' + i + '.jpg';
+        img.src = 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
         img.alt = product.line + ' ' + v.name + ' 照片 ' + i;
         if (i > 1) img.loading = 'lazy';
         slide.appendChild(img);
@@ -298,7 +301,7 @@
     // 首頁載入完後先在背景把產品照抓下來，進產品頁和換色時照片不會一格一格出現
     window.addEventListener('load', () => {
       product.variants.forEach(v => {
-        for (let i = 1; i <= v.photos; i++) new Image().src = 'img/' + v.id + '-' + i + '.jpg';
+        for (let i = 1; i <= v.photos; i++) new Image().src = 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
       });
     });
   </script>
