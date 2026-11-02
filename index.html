@@ -89,16 +89,13 @@
       text-align: center;
       padding-bottom: 96px;
     }
-    .carousel {
-      width: 100%;
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-    }
-    .carousel::-webkit-scrollbar { display: none; }
-    .slide { flex: 0 0 100%; aspect-ratio: 1; scroll-snap-align: start; }
-    .slide img { width: 100%; height: 100%; object-fit: cover; }
+    /* 輪播：第 1、2 張疊在同一格原地漸變（像開關燈），之後的照片左右滑動 */
+    .carousel { width: 100%; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    .carousel:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+    .track { display: flex; will-change: transform; }
+    .slide { position: relative; flex: 0 0 100%; aspect-ratio: 1; }
+    .slide img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+    .slide .layer-b { position: absolute; inset: 0; opacity: 0; }
     .dots { display: flex; gap: 5px; margin-top: 17px; }
     .dots button {
       width: 6px; height: 6px; padding: 0; border: 0; border-radius: 50%;
@@ -123,7 +120,6 @@
     #page-saku .back-link { margin-top: 64px; }
 
     @media (prefers-reduced-motion: no-preference) {
-      .carousel { scroll-behavior: smooth; }
       .swatches button { transition: width 0.2s, height 0.2s; }
     }
   </style>
@@ -165,7 +161,7 @@
 
   <!-- 產品頁 -->
   <main class="page" id="page-saku" aria-label="Lamp Saku">
-    <div class="carousel" id="carousel" aria-label="產品照片"></div>
+    <div class="carousel" id="carousel" tabindex="0" role="region" aria-roledescription="輪播" aria-label="產品照片"><div class="track" id="track"></div></div>
     <div class="dots" id="dots" role="group" aria-label="切換照片"></div>
 
     <h1 class="product-title" id="product-title"></h1>
@@ -194,19 +190,20 @@
   <script>
     // 產品資料：加新顏色或新產品就改這裡
     // 換圖後改這個版本號，瀏覽器就會重新下載照片，不會顯示舊的快取
-    const IMG_VERSION = '3';
+    const IMG_VERSION = '4';
 
     const product = {
       line: 'Lamp Saku',
       price: 1100,
       variants: [
-        { id: 'oshima', name: 'Oshima', label: '白', swatch: '#e3e3e3', photos: 4 },
-        { id: 'kawazu', name: 'Kawazu', label: '粉紅', swatch: '#ffd3e3', photos: 3 },
+        { id: 'oshima', name: 'Oshima', label: '白', swatch: '#e3e3e3', photos: 5 },
+        { id: 'kawazu', name: 'Kawazu', label: '粉紅', swatch: '#ffd3e3', photos: 4 },
       ],
     };
 
     const pages = { info: 'page-info', saku: 'page-saku' };
     const carousel = document.getElementById('carousel');
+    const track = document.getElementById('track');
     const dots = document.getElementById('dots');
     const swatches = document.getElementById('swatches');
 
@@ -214,13 +211,95 @@
       const id = pages[location.hash.slice(1)] || 'page-home';
       document.querySelectorAll('.page').forEach(p => p.classList.toggle('is-active', p.id === id));
       window.scrollTo(0, 0);
-      if (id === 'page-saku') syncDots();
+      if (id === 'page-saku') showPhoto(false);
     }
 
-    function syncDots() {
-      const i = Math.round(carousel.scrollLeft / (carousel.clientWidth || 1));
-      [...dots.children].forEach((d, j) => d.setAttribute('aria-current', j === i ? 'true' : 'false'));
+    // ---------- 輪播 ----------
+    // 照片 1 → 2：同一格原地漸變；照片 2 之後：左右滑動
+    let photo = 0;        // 目前第幾張（0 起算）
+    let photoCount = 0;
+    let layerB = null;    // 第 2 張，疊在第 1 張上面
+    const FADE = 'opacity 700ms cubic-bezier(0.45, 0, 0.55, 1)';
+    const SLIDE = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
+
+    // 第 1、2 張共用第一格
+    const panelOf = i => Math.max(0, i - 1);
+
+    function showPhoto(animate = true) {
+      const motion = animate && !reduceMotion.matches;
+      track.style.transition = motion ? SLIDE : 'none';
+      track.style.transform = `translateX(${-panelOf(photo) * 100}%)`;
+      if (layerB) {
+        layerB.style.transition = motion ? FADE : 'none';
+        layerB.style.opacity = photo >= 1 ? 1 : 0;
+      }
+      [...dots.children].forEach((d, j) => d.setAttribute('aria-current', j === photo ? 'true' : 'false'));
     }
+
+    function goTo(i, animate = true) {
+      photo = Math.max(0, Math.min(photoCount - 1, i));
+      showPhoto(animate);
+    }
+
+    // 手指或滑鼠拖曳：第 1↔2 張時透明度跟著手指變，其他時候照片跟著手指移動
+    let drag = null;
+    carousel.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      drag = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, horizontal: null, id: e.pointerId };
+    });
+    carousel.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (drag.horizontal === null) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        drag.horizontal = Math.abs(dx) > Math.abs(dy);
+        if (!drag.horizontal) { drag = null; return; }
+        carousel.setPointerCapture(e.pointerId);
+      }
+      e.preventDefault();
+      drag.dx = dx;
+      const w = carousel.clientWidth;
+      const fading = layerB && ((photo === 0 && dx < 0) || (photo === 1 && dx > 0));
+      if (fading) {
+        layerB.style.transition = 'none';
+        layerB.style.opacity = photo === 0 ? Math.min(1, -dx / w) : 1 - Math.min(1, dx / w);
+      } else {
+        const atEdge = (dx < 0 && photo === photoCount - 1) || (dx > 0 && panelOf(photo) === 0);
+        track.style.transition = 'none';
+        track.style.transform = `translateX(${-panelOf(photo) * w + (atEdge ? dx / 3 : dx)}px)`;
+      }
+    });
+    function endDrag(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      const { dx, t, horizontal } = drag;
+      drag = null;
+      if (!horizontal) return;
+      const fast = Math.abs(dx) > 20 && Math.abs(dx) / (performance.now() - t) > 0.4;
+      const far = Math.abs(dx) > carousel.clientWidth * 0.18;
+      goTo(e.type === 'pointerup' && (fast || far) ? photo + (dx < 0 ? 1 : -1) : photo);
+    }
+    carousel.addEventListener('pointerup', endDrag);
+    carousel.addEventListener('pointercancel', endDrag);
+
+    // 觸控板左右滑
+    let wheelSum = 0, wheelLock = false;
+    carousel.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      if (wheelLock) return;
+      wheelSum += e.deltaX;
+      if (Math.abs(wheelSum) > 40) {
+        goTo(photo + (wheelSum > 0 ? 1 : -1));
+        wheelSum = 0; wheelLock = true;
+        setTimeout(() => { wheelLock = false; }, 650);
+      }
+    }, { passive: false });
+
+    // 鍵盤左右鍵
+    carousel.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(photo + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(photo - 1); }
+    });
 
     let current = null;
     let switching = 0;
@@ -234,29 +313,42 @@
 
     function renderVariant(v) {
       document.getElementById('price').textContent = '$ ' + product.price;
-      carousel.innerHTML = '';
+      track.innerHTML = '';
       dots.innerHTML = '';
-      for (let i = 1; i <= v.photos; i++) {
-        const slide = document.createElement('div');
-        slide.className = 'slide';
+      layerB = null;
+      const src = i => 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
+      const makeImg = i => {
         const img = document.createElement('img');
-        img.src = 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
+        img.src = src(i);
         img.alt = product.line + ' ' + v.name + ' 照片 ' + i;
-        if (i > 1) img.loading = 'lazy';
-        slide.appendChild(img);
-        carousel.appendChild(slide);
+        img.draggable = false;
+        return img;
+      };
+      for (let i = 1; i <= v.photos; i++) {
+        if (i === 2) {
+          // 第 2 張疊在第 1 張那一格上
+          layerB = makeImg(2);
+          layerB.className = 'layer-b';
+          track.firstChild.appendChild(layerB);
+        } else {
+          const slide = document.createElement('div');
+          slide.className = 'slide';
+          slide.appendChild(makeImg(i));
+          track.appendChild(slide);
+        }
 
         const b = document.createElement('button');
         b.type = 'button';
         b.id = 'dot-' + i;
         b.setAttribute('aria-label', '第 ' + i + ' 張');
-        b.addEventListener('click', () => carousel.scrollTo({ left: carousel.clientWidth * (i - 1) }));
+        b.addEventListener('click', () => goTo(i - 1));
         dots.appendChild(b);
       }
-      carousel.scrollTo({ left: 0, behavior: 'instant' });
+      photoCount = v.photos;
+      photo = 0;
+      showPhoto(false);
       [...swatches.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === v.id ? 'true' : 'false'));
       current = v;
-      syncDots();
     }
 
     // 換色：照片直接切換；產品名稱往上（或下）滑出淡出，新名稱從另一側滑入淡入
@@ -293,7 +385,6 @@
       swatches.appendChild(b);
     });
 
-    carousel.addEventListener('scroll', syncDots, { passive: true });
     window.addEventListener('hashchange', route);
     setTitle(product.variants[0]);
     renderVariant(product.variants[0]);
