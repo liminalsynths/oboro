@@ -120,6 +120,61 @@
     .specs p { margin: 0; text-wrap: balance; }
     .specs .origin { margin-top: 15px; }
     #page-saku .back-link { margin-top: 64px; }
+    /* 手機版：圖片區和資訊區不分欄，元素照原本順序排成一欄 */
+    .product-media, .product-info { display: contents; }
+
+    /* ---------- 電腦版（寬度 900px 以上） ----------
+       首頁：logo 左上、標語在 logo 右邊、info / shop 右上，照片在下方置中
+       產品頁：圖片左、資訊右（齊左）
+       返回鍵：一律固定在畫面右上角，跟首頁 info / shop 同一列 */
+    @media (min-width: 900px) {
+      :root { --edge-x: 48px; --edge-y: 36px; --head-h: 56px; }
+      .page { width: 100%; }
+
+      #page-home.is-active {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: var(--head-h) 1fr;
+        column-gap: 28px;
+        align-items: center;
+        min-height: 100dvh;
+        padding: var(--edge-y) var(--edge-x);
+      }
+      #page-home .home-top, #page-home .home-mid { display: none; }
+      .home-hero { display: contents; }
+      .home-logo { grid-area: 1 / 1; width: 190px; margin: 0; }
+      .tagline { position: static; grid-area: 1 / 2; text-align: left; }
+      #page-home .nav { grid-area: 1 / 3; font-size: 22px; }
+      #page-home .home-photo {
+        grid-area: 2 / 1 / 3 / 4; justify-self: center;
+        width: min(560px, calc(100dvh - var(--head-h) - var(--edge-y) * 2 - 64px));
+      }
+
+      #page-info { padding: 0; }
+      #page-info .home-top, #page-info .home-mid, .info-frame, .logo-spacer { display: none; }
+
+      #page-info .nav, #page-saku .back-link {
+        position: fixed; top: var(--edge-y); right: var(--edge-x); z-index: 5;
+        display: flex; align-items: center; height: var(--head-h); margin: 0; font-size: 22px;
+      }
+
+      #page-saku.is-active {
+        --media-w: min(46vw, calc((100dvh - var(--head-h) - var(--edge-y) * 2 - 48px) * 200 / 221));
+        display: grid;
+        grid-template-columns: minmax(0, var(--media-w)) minmax(0, 380px);
+        column-gap: 72px;
+        justify-content: center;
+        align-items: center;
+        min-height: 100dvh;
+        padding: calc(var(--edge-y) + var(--head-h)) var(--edge-x) var(--edge-y);
+        text-align: left;
+      }
+      .product-media { display: flex; flex-direction: column; align-items: center; }
+      .product-info { display: flex; flex-direction: column; align-items: flex-start; }
+      .product-title { margin-top: 0; }
+      .swatches { margin-left: -16px; }
+      .specs { padding: 0; }
+    }
 
     @media (prefers-reduced-motion: no-preference) {
       .swatch { transition: width 0.2s, height 0.2s; }
@@ -132,7 +187,7 @@
   <main class="page" id="page-home" aria-label="首頁">
     <div class="home-top"></div>
     <div class="home-hero">
-      <p class="tagline">Where light and color move through line and texture.</p>
+      <p class="tagline">Where light and color move<br>through line and texture.</p>
       <img class="home-photo" src="img/home.webp?v=6" fetchpriority="high" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
     </div>
     <div class="home-mid"></div>
@@ -163,8 +218,12 @@
 
   <!-- 產品頁 -->
   <main class="page" id="page-saku" aria-label="Lamp Saku">
+    <div class="product-media">
     <div class="carousel" id="carousel" tabindex="0" role="region" aria-roledescription="輪播" aria-label="產品照片"><div class="track" id="track"></div></div>
     <div class="dots" id="dots" role="group" aria-label="切換照片"></div>
+    </div>
+
+    <div class="product-info">
 
     <h1 class="product-title" id="product-title"></h1>
     <p class="price" id="price"></p>
@@ -184,6 +243,7 @@
       <p>Wattage: 3W</p>
       <p>Recommended: USB adapter 5V/1A or above (not included)</p>
       <p class="origin">made in taiwan.</p>
+    </div>
     </div>
 
     <a class="back-link" href="#" aria-label="返回"><svg class="back-icon" viewBox="0 0 468.26 430.69" aria-hidden="true"><path fill="currentColor" d="M316.38,361.71c15.07-.01,29.43-4.55,41.97-13.13,27.34-18.7,42.28-50.41,38.93-83.77-3.11-30.98-22.31-59.71-52.18-72.85-8.74-3.84-17.89-6.47-27.93-6.47l-188.75-.02,56.24,56.03c7.96,7.93,11.75,19.81,10.28,30.92-1.72,13.01-10.24,23.65-20.93,28.28-11.79,5.1-27.5,4.66-37.1-4.62L9.33,172.88c-11.48-11.09-12.97-32.12-1.07-43.45L130.96,12.5c11.75-11.19,27.3-16.21,42.58-9.44,13.62,6.03,23.49,20.6,21.51,36.73-1.01,8.2-4.34,16.66-10.29,22.34l-57.12,54.61,184.6-.12c33.27-.02,63.93,9.13,90.88,28.45,42.43,30.42,66.58,80.18,65.07,132.67-.58,20.13-3.59,39.09-11.27,57.64-21.6,52.16-70.11,89.01-126.49,94.51l-41.06.8c-20.19.39-37.26-13.77-37.58-33.48-.32-19.74,15.13-35.45,35.55-35.47l29.04-.03Z"/></svg></a>
