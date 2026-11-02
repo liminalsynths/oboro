@@ -89,7 +89,7 @@
       text-align: center;
       padding-bottom: 96px;
     }
-    /* 輪播：第 1、2 張疊在同一格原地漸變（像開關燈），之後的照片左右滑動 */
+    /* 輪播：左右滑動；fadeFirst 開啟時第 1、2 張疊在同一格原地漸變 */
     .carousel { width: 100%; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
     .carousel:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
     .track { display: flex; will-change: transform; }
@@ -189,15 +189,16 @@
 
   <script>
     // 產品資料：加新顏色或新產品就改這裡
+    // fadeFirst: true 時，第 1 → 2 張改成原地漸變（像開關燈），其餘照片左右滑動
     // 換圖後改這個版本號，瀏覽器就會重新下載照片，不會顯示舊的快取
-    const IMG_VERSION = '4';
+    const IMG_VERSION = '5';
 
     const product = {
       line: 'Lamp Saku',
       price: 1100,
       variants: [
-        { id: 'oshima', name: 'Oshima', label: '白', swatch: '#e3e3e3', photos: 5 },
-        { id: 'kawazu', name: 'Kawazu', label: '粉紅', swatch: '#ffd3e3', photos: 4 },
+        { id: 'oshima', name: 'Oshima', label: '白', swatch: '#e3e3e3', photos: 4, fadeFirst: false },
+        { id: 'kawazu', name: 'Kawazu', label: '粉紅', swatch: '#ffd3e3', photos: 3, fadeFirst: false },
       ],
     };
 
@@ -215,15 +216,15 @@
     }
 
     // ---------- 輪播 ----------
-    // 照片 1 → 2：同一格原地漸變；照片 2 之後：左右滑動
+    // 一般是左右滑動；fadeFirst 開啟時照片 1 → 2 在同一格原地漸變
     let photo = 0;        // 目前第幾張（0 起算）
     let photoCount = 0;
     let layerB = null;    // 第 2 張，疊在第 1 張上面
     const FADE = 'opacity 700ms cubic-bezier(0.45, 0, 0.55, 1)';
     const SLIDE = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
 
-    // 第 1、2 張共用第一格
-    const panelOf = i => Math.max(0, i - 1);
+    // fadeFirst 時第 1、2 張共用第一格
+    const panelOf = i => layerB ? Math.max(0, i - 1) : i;
 
     function showPhoto(animate = true) {
       const motion = animate && !reduceMotion.matches;
@@ -325,7 +326,7 @@
         return img;
       };
       for (let i = 1; i <= v.photos; i++) {
-        if (i === 2) {
+        if (i === 2 && v.fadeFirst) {
           // 第 2 張疊在第 1 張那一格上
           layerB = makeImg(2);
           layerB.className = 'layer-b';
