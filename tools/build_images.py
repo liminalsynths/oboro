@@ -3,7 +3,7 @@
 用法（在 repo 根目錄）：python3 tools/build_images.py
 
 - 每個資料夾只取單一字母命名的檔案（a、b、c…），照字母順序排
-- 輸出 img/<款式>-<序號>.webp（1080px 正方形）
+- 從原圖正中央裁成 2:3 直式，輸出 img/<款式>-<序號>.webp（1080×1620）
 - 更新 index.html 裡的模糊預覽圖、各款照片張數，並把 IMG_VERSION 加一
 """
 import base64
@@ -25,16 +25,21 @@ FOLDERS = {
 }
 
 
-def square(im):
+def crop_2x3(im):
     im = ImageOps.exif_transpose(im)
     if im.mode in ('RGBA', 'LA'):
         bg = Image.new('RGB', im.size, 'white')
         bg.paste(im, mask=im.getchannel('A'))
         im = bg
     im = im.convert('RGB')
-    s = min(im.size)
-    left, top = (im.width - s) // 2, (im.height - s) // 2
-    return im.crop((left, top, left + s, top + s))
+    # 原圖比 2:3 寬就裁左右，比 2:3 高就裁上下，都從正中央取
+    w, h = im.size
+    if w * 3 > h * 2:
+        cw, ch = h * 2 // 3, h
+    else:
+        cw, ch = w, w * 3 // 2
+    left, top = (w - cw) // 2, (h - ch) // 2
+    return im.crop((left, top, left + cw, top + ch))
 
 
 def main():
@@ -47,10 +52,10 @@ def main():
             key=lambda f: f.stem.lower(),
         )
         for i, f in enumerate(files, 1):
-            sq = square(Image.open(f))
-            sq.resize((1080, 1080), Image.LANCZOS).save(OUT / f'{vid}-{i}.webp', 'WEBP', quality=78, method=6)
+            sq = crop_2x3(Image.open(f))
+            sq.resize((1080, 1620), Image.LANCZOS).save(OUT / f'{vid}-{i}.webp', 'WEBP', quality=78, method=6)
             buf = io.BytesIO()
-            sq.resize((24, 24), Image.LANCZOS).save(buf, 'JPEG', quality=60)
+            sq.resize((16, 24), Image.LANCZOS).save(buf, 'JPEG', quality=60)
             placeholders[f'{vid}-{i}'] = 'data:image/jpeg;base64,' + base64.b64encode(buf.getvalue()).decode()
             print(f'{vid}-{i}.webp  <-  {folder}/{f.name}')
         counts[vid] = len(files)
