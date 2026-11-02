@@ -312,7 +312,8 @@
       title.innerHTML = product.line + '<br>' + v.name;
     }
 
-    function renderVariant(v) {
+    // keepPhoto：換色時停在同一張（第幾張），新款式張數不夠就停在最後一張
+    function renderVariant(v, keepPhoto = 0) {
       document.getElementById('price').textContent = '$ ' + product.price;
       track.innerHTML = '';
       dots.innerHTML = '';
@@ -346,7 +347,7 @@
         dots.appendChild(b);
       }
       photoCount = v.photos;
-      photo = 0;
+      photo = Math.min(keepPhoto, v.photos - 1);
       showPhoto(false);
       [...swatches.children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === v.id ? 'true' : 'false'));
       current = v;
@@ -356,7 +357,7 @@
     async function switchVariant(v) {
       if (v === current) return;
       const dir = product.variants.indexOf(v) > product.variants.indexOf(current) ? 1 : -1;
-      renderVariant(v);
+      renderVariant(v, photo);
       if (reduceMotion.matches) { setTitle(v); return; }
 
       const token = ++switching;
