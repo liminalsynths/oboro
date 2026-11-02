@@ -93,7 +93,7 @@
     .carousel { width: 100%; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
     .carousel:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
     .track { display: flex; will-change: transform; }
-    .slide { position: relative; flex: 0 0 100%; aspect-ratio: 1; }
+    .slide { position: relative; flex: 0 0 100%; aspect-ratio: 1; background: var(--dot) center / cover no-repeat; }
     .slide img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
     .slide .layer-b { position: absolute; inset: 0; opacity: 0; }
     .dots { display: flex; gap: 5px; margin-top: 17px; }
@@ -133,7 +133,7 @@
     <div class="home-top"></div>
     <div class="home-hero">
       <p class="tagline">Where light and color move through line and texture.</p>
-      <img class="home-photo" src="img/home.jpg?v=2" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
+      <img class="home-photo" src="img/home.webp?v=6" fetchpriority="high" alt="白色 Lamp Saku 點亮放在桌上，背景是綠色植物">
     </div>
     <div class="home-mid"></div>
     <nav class="nav" aria-label="主選單">
@@ -193,7 +193,7 @@
     // 產品資料：加新顏色或新產品就改這裡
     // fadeFirst: true 時，第 1 → 2 張改成原地漸變（像開關燈），其餘照片左右滑動
     // 換圖後改這個版本號，瀏覽器就會重新下載照片，不會顯示舊的快取
-    const IMG_VERSION = '5';
+    const IMG_VERSION = '6';
 
     const product = {
       line: 'Lamp Saku',
@@ -203,6 +203,19 @@
         { id: 'kawazu', name: 'Kawazu', label: '粉紅', swatch: '#ffd3e3', photos: 3, fadeFirst: false },
       ],
     };
+
+    // 每張產品照的 24px 模糊縮圖，直接寫在網頁裡：照片還沒下載完時先顯示這個，不會出現空白
+    // 換照片時要重新產生（跟換圖一起做）
+    const PLACEHOLDERS = {
+      'oshima-1': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDibOy83GFroV8NobHzd4EhGdu3j86oaUy4UYyT6V6OtlII1T7OufK/T/GkM8pvLExZ4FFaurlQZBjBBIx6UUCKmjXcUMilwOCK9CXxLbGAEs+QvrxRRSYzgdavYZ5XKY5JNFFFMR//2Q==',
+      'oshima-2': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwC5aWTiDgcmFSaj1TTnOnoQM/8A6qv2k2yFt/GYlI9xinXEjNY7WHpikB5VLDtJB4Ioq5qO1rycp90u2PzooA9ZFlHNEnQLHHtGPXrVq6giWxXKjK4zRRUlHj+tQfZNUurccrHIQv06j9DRRRVEn//Z',
+      'oshima-3': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDk4rb0Un8KviwnMO8W7hM43bTjNWrOHeyZ+7uGa6wapdeRv3jys7dm3jH86Qzzua1buKK2ryHY8hAwpYkUUAW9BRbhJlfqu0/hmup8iH+zcbCBRRQBzevJHb20W3q5JA9h1ooooA//2Q==',
+      'oshima-4': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDnPCUyR6gEkIG4qwz7df513/lfw/8ATbrXmlnCHYAda6E6TqQsceVc+Rjfjnb9aQGR4rmSS+2RnOCzHHbPT+VFVLyEIxBooGM0+7NvOjjBwc4PSvQj4xB0bAERn6EFflx9KKKAPPdQuvPmZ+Bk9BRRRQB//9k=',
+      'kawazu-1': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDgrWDfjit5NFU6cZ8/PjOMcY+tZWmsGkQbScsBgd+a9bj0UCwEflrjy8ZpG8Eranj91bbM9OKKs6oQk0qYKlWIwe3NFBnK1ybQpoIZkZxyCCD6GvTF8Q3P2PHlQH5f9buOMf7vr+NFFJmkdjzbX7i3nnkdcFmJJOMZPrRRRVGcnqf/2Q==',
+      'kawazu-2': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCzaaf5luM9lqhrFjtiRu2a3rEP5ACgn5cVW1ONpIBGBzuAoOts84nTZIynqCRRUt381xKSMEuePxopGDPYNGhQ2u44yRTLmBGDIwHI49jRRSKvqeWeIVWLWrpE6b88diQCf1oooqkS9z//2Q==',
+      'kawazu-3': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA0JCgsKCA0LCgsODg0PEyAVExISEyccHhcgLikxMC4pLSwzOko+MzZGNywtQFdBRkxOUlNSMj5aYVpQYEpRUk//2wBDAQ4ODhMREyYVFSZPNS01T09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0//wAARCAAYABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDn4YX4wgH1NWzbsVw0iZx0B5otI9zIMkAsAcDPFdkX01YTbf2ZEY87i20Z3YxnH096Vjo2OBltyM9aKt3qBJJAM7QxAyMcUUAX/DsX2hDtGXVwfwrpjYSmPzO+elFFUUnocx4ii+zgEjDs7flRRRQTLc//2Q=='
+    };
+    const photoSrc = (v, i) => 'img/' + v.id + '-' + i + '.webp?v=' + IMG_VERSION;
 
     const pages = { info: 'page-info', saku: 'page-saku' };
     const carousel = document.getElementById('carousel');
@@ -314,33 +327,44 @@
       title.innerHTML = product.line + '<br>' + v.name;
     }
 
-    // keepPhoto：換色時停在同一張（第幾張），新款式張數不夠就停在最後一張
-    function renderVariant(v, keepPhoto = 0) {
-      document.getElementById('price').textContent = '$ ' + product.price;
-      track.innerHTML = '';
-      dots.innerHTML = '';
-      layerB = null;
-      const src = i => 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
+    // 每款的照片元素只建立一次並留著，換色時直接拿來用，不用重新下載和解碼
+    const slideCache = new Map();
+    function slidesFor(v) {
+      if (slideCache.has(v.id)) return slideCache.get(v.id);
       const makeImg = i => {
         const img = document.createElement('img');
-        img.src = src(i);
+        img.src = photoSrc(v, i);
         img.alt = product.line + ' ' + v.name + ' 照片 ' + i;
         img.draggable = false;
+        img.decoding = 'async';
         return img;
       };
+      const slides = [];
       for (let i = 1; i <= v.photos; i++) {
         if (i === 2 && v.fadeFirst) {
           // 第 2 張疊在第 1 張那一格上
-          layerB = makeImg(2);
-          layerB.className = 'layer-b';
-          track.firstChild.appendChild(layerB);
+          const b = makeImg(2);
+          b.className = 'layer-b';
+          slides[0].appendChild(b);
         } else {
           const slide = document.createElement('div');
           slide.className = 'slide';
+          slide.style.backgroundImage = `url(${PLACEHOLDERS[v.id + '-' + i]})`;
           slide.appendChild(makeImg(i));
-          track.appendChild(slide);
+          slides.push(slide);
         }
+      }
+      slideCache.set(v.id, slides);
+      return slides;
+    }
 
+    // keepPhoto：換色時停在同一張（第幾張），新款式張數不夠就停在最後一張
+    function renderVariant(v, keepPhoto = 0) {
+      document.getElementById('price').textContent = '$ ' + product.price;
+      track.replaceChildren(...slidesFor(v));
+      layerB = track.querySelector('.layer-b');
+      dots.innerHTML = '';
+      for (let i = 1; i <= v.photos; i++) {
         const b = document.createElement('button');
         b.type = 'button';
         b.id = 'dot-' + i;
@@ -396,12 +420,8 @@
     renderVariant(product.variants[0]);
     route();
 
-    // 首頁載入完後先在背景把產品照抓下來，進產品頁和換色時照片不會一格一格出現
-    window.addEventListener('load', () => {
-      product.variants.forEach(v => {
-        for (let i = 1; i <= v.photos; i++) new Image().src = 'img/' + v.id + '-' + i + '.jpg?v=' + IMG_VERSION;
-      });
-    });
+    // 一開頁就把每款的照片建好並開始下載，進產品頁或換色時照片已經在了
+    product.variants.forEach(slidesFor);
   </script>
 </body>
 </html>
